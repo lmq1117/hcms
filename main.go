@@ -21,8 +21,8 @@ func main() {
 	//路由设置
 	mvcHandle(app)
 
-	config := config.InitConfig()
-	addr := ":" + config.Port
+	conf := config.InitConfig()
+	addr := ":" + conf.Port
 	app.Run(
 		iris.Addr(addr), //在端口8080进行监听
 		iris.WithoutServerError(iris.ErrServerClosed), //无服务错误提示

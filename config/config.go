@@ -17,7 +17,7 @@ var ServConfig AppConfig
 
 //初始化服务器配置
 func InitConfig() *AppConfig {
-	file, err := os.Open("/Users/hongweiyu/go/src/hcms/config.json")
+	file, err := os.Open("D:/Go/hcms/config.json")
 	if err != nil {
 		panic(err.Error())
 	}

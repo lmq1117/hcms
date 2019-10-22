@@ -11,8 +11,8 @@ import (
  */
 func NewMysqlEngine() *xorm.Engine {
 
-	//数据库引擎
-	engine, err := xorm.NewEngine("mysql", "root:yu271400@/qfCms?charset=utf8")
+	//数据库引擎 dbuser:dbpassword@tcp(dbhost:dbport)/databasename?charset=utf8
+	engine, err := xorm.NewEngine("mysql", "root:123456@(192.168.100.133:3306)/hcms?charset=utf8")
 
 	//根据实体创建表
 	//err = engine.CreateTables(new(model.Admin))
