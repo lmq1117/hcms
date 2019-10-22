@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/go-xorm/xorm"
-	"irisDemo/CmsProject/model"
 	"github.com/kataras/iris"
+	"github.com/lmq1117/hcms/model"
 )
 
 /**

@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"encoding/json"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
-	"irisDemo/CmsProject/service"
 	"github.com/kataras/iris/sessions"
-	"encoding/json"
-	"irisDemo/CmsProject/utils"
-	"irisDemo/CmsProject/model"
+	"github.com/lmq1117/hcms/model"
+	"github.com/lmq1117/hcms/service"
+	"github.com/lmq1117/hcms/utils"
 )
 
 /**
@@ -42,7 +42,7 @@ type AdminLogin struct {
 func (ac *AdminController) GetSingout() mvc.Result {
 
 	//删除session，下次需要从新登录
-	ac.Session.Delete(ADMIN);
+	ac.Session.Delete(ADMIN)
 	return mvc.Response{
 		Object: map[string]interface{}{
 			"status":  utils.RECODE_OK,

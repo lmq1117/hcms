@@ -1,8 +1,8 @@
 package model
 
 import (
+	"github.com/lmq1117/hcms/utils"
 	"time"
-	"irisDemo/CmsProject/utils"
 )
 
 /**

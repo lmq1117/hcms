@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"reflect"
-	"github.com/goes/logger"
 	"fmt"
 	"github.com/kataras/iris"
+	"github.com/sirupsen/logrus"
+	"reflect"
 	"time"
 )
 
@@ -12,7 +12,7 @@ import (
 func SetObjByJson(obj interface{}, data map[string]interface{}) error {
 	for key, value := range data {
 		if err := setField(obj, key, value); err != nil {
-			logger.Error("SetObjByJson set field fail.")
+			logrus.Errorf("SetObjByJson set field fail.")
 			return err
 		}
 	}
@@ -24,7 +24,7 @@ func setField(obj interface{}, name string, value interface{}) error {
 	structData := reflect.TypeOf(obj).Elem()
 	fieldValue, result := structData.FieldByName(name)
 	if !result {
-		logger.Error("No such field ", name)
+		logrus.Errorf("No such field " + name)
 		return fmt.Errorf("No such field %s", name)
 	}
 

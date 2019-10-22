@@ -2,11 +2,11 @@ package controller
 
 import (
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/sessions"
-	"irisDemo/CmsProject/service"
-	"strings"
 	"github.com/kataras/iris/mvc"
-	"irisDemo/CmsProject/utils"
+	"github.com/kataras/iris/sessions"
+	"github.com/lmq1117/hcms/service"
+	"github.com/lmq1117/hcms/utils"
+	"strings"
 )
 
 /**

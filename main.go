@@ -4,12 +4,12 @@ import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/mvc"
-	"irisDemo/CmsProject/service"
-	"irisDemo/CmsProject/controller"
-	"irisDemo/CmsProject/datasource"
 	"github.com/kataras/iris/sessions"
+	"github.com/lmq1117/hcms/config"
+	"github.com/lmq1117/hcms/controller"
+	"github.com/lmq1117/hcms/datasource"
+	"github.com/lmq1117/hcms/service"
 	"time"
-	"irisDemo/CmsProject/config"
 )
 
 func main() {

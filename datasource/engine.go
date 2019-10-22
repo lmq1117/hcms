@@ -3,7 +3,7 @@ package datasource
 import (
 	_ "github.com/go-sql-driver/mysql" //不能忘记导入
 	"github.com/go-xorm/xorm"
-	"irisDemo/CmsProject/model"
+	"github.com/lmq1117/hcms/model"
 )
 
 /**
@@ -27,7 +27,7 @@ func NewMysqlEngine() *xorm.Engine {
 	 */
 	//Sync2是Sync的基础上优化的方法
 	err = engine.Sync2(new(
-	model.Permission),
+		model.Permission),
 		new(model.City),
 		new(model.Admin),
 		new(model.AdminPermission),

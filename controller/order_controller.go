@@ -2,10 +2,10 @@ package controller
 
 import (
 	"context"
-	"irisDemo/CmsProject/service"
+	"github.com/lmq1117/hcms/service"
 )
 
 type OrderController struct {
-	Ctx context.Context
+	Ctx     context.Context
 	Service service.OrderService
 }
