@@ -5,10 +5,10 @@ import (
 	"github.com/kataras/iris/context"
 	"github.com/kataras/iris/mvc"
 	"github.com/kataras/iris/sessions"
-	"github.com/lmq1117/hcms/config"
-	"github.com/lmq1117/hcms/controller"
-	"github.com/lmq1117/hcms/datasource"
-	"github.com/lmq1117/hcms/service"
+	"hcms/config"
+	"hcms/controller"
+	"hcms/datasource"
+	"hcms/service"
 	"time"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	config := config.InitConfig()
 	addr := ":" + config.Port
 	app.Run(
-		iris.Addr(addr),                               //在端口8080进行监听
+		iris.Addr(addr), //在端口8080进行监听
 		iris.WithoutServerError(iris.ErrServerClosed), //无服务错误提示
 		iris.WithOptimizations,                        //对json数据序列化更快的配置
 	)

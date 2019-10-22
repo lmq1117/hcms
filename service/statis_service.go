@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/go-xorm/xorm"
-	"github.com/lmq1117/hcms/model"
+	"hcms/model"
 	"time"
 )
 

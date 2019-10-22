@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	"github.com/lmq1117/hcms/service"
+	"hcms/service"
 )
 
 type OrderController struct {

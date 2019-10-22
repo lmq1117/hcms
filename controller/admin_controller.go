@@ -5,9 +5,9 @@ import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
 	"github.com/kataras/iris/sessions"
-	"github.com/lmq1117/hcms/model"
-	"github.com/lmq1117/hcms/service"
-	"github.com/lmq1117/hcms/utils"
+	"hcms/model"
+	"hcms/service"
+	"hcms/utils"
 )
 
 /**

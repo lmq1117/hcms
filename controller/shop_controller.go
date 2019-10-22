@@ -3,7 +3,7 @@ package controller
 import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/sessions"
-	"github.com/lmq1117/hcms/service"
+	"hcms/service"
 )
 
 //商店功能模块控制结构体

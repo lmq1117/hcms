@@ -1,4 +1,4 @@
-module github.com/lmq1117/github.com/lmq1117/hcms
+module hcms
 
 go 1.12
 
@@ -26,7 +26,6 @@ require (
 	github.com/kataras/iris v11.1.1+incompatible
 	github.com/klauspost/compress v1.8.6 // indirect
 	github.com/klauspost/cpuid v1.2.1 // indirect
-	github.com/lmq1117/hcms v0.0.0-20190413085926-353a502895ea
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect

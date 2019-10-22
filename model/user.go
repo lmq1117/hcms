@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/lmq1117/hcms/utils"
+	"hcms/utils"
 	"time"
 )
 
