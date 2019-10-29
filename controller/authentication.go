@@ -1,6 +1,6 @@
 package controller
 
-import "github.com/kataras/iris"
+import "github.com/kataras/iris/v12"
 
 /**
  * 认证

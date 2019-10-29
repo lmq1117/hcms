@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/go-xorm/xorm"
-	"github.com/kataras/iris"
+	"github.com/kataras/iris/v12"
 	"hcms/model"
 )
 

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
-	"github.com/kataras/iris/mvc"
-	"github.com/kataras/iris/sessions"
+	"fmt"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
+	"github.com/kataras/iris/v12/mvc"
+	"github.com/kataras/iris/v12/sessions"
 	"hcms/config"
 	"hcms/controller"
 	"hcms/datasource"
@@ -13,10 +14,13 @@ import (
 )
 
 func main() {
+
+	fmt.Println()
+
 	app := newApp()
 
 	//应用App设置
-	configation(app)
+	configuration(app)
 
 	//路由设置
 	mvcHandle(app)
@@ -95,9 +99,9 @@ func mvcHandle(app *iris.Application) {
 }
 
 /**
- * 项目设置
+ * 项目设置 configuration
  */
-func configation(app *iris.Application) {
+func configuration(app *iris.Application) {
 
 	//配置 字符编码
 	app.Configure(iris.WithConfiguration(iris.Configuration{
