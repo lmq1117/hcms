@@ -92,4 +92,22 @@ func main() {
     app.Run(iris.Addr(":8080"))
 }
 ```
+> 1 直接访问 http://localhost:8080/invisible/iris 404
+> 2 访问 http://localhost:8080/execute 执行到none
+> 3 访问 http://localhost:8080/change 后 可以直接访问 http://localhost:8080/invisible/iris
+### 路由分组
+#### .Party()
+```cassandraql
+app := iris.New()
+
+users := app.Party("/users",myAuthMiddlewareHandler)
+users.Get("/{id:uint64}/profile",userProfileHandler)
+users.Get("/message/{id:uint64}",userMessageHandler)
+```
+
+#### .PartyFunc()
+```cassandraql
+app := iris.New()
+
+```
 

@@ -4,7 +4,7 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-func main(){
+func main() {
 	app := iris.New()
 
 	none := app.None("/invisible/{username}", func(ctx iris.Context) {
@@ -28,6 +28,8 @@ func main(){
 		app.RefreshRouter()
 	})
 
+	//当访问 http://localhost:8080/execute 时
+	// none 是offline 则
 	app.Get("/execute", func(ctx iris.Context) {
 		if !none.IsOnline() {
 			ctx.Values().Set("from", "/execute with offline access")
