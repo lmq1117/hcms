@@ -42,9 +42,9 @@ func newApp() *iris.Application {
 	app.Logger().SetLevel("debug")
 
 	//注册静态资源
-	app.StaticWeb("/static", "./static")
-	app.StaticWeb("/manage/static", "./static")
-	app.StaticWeb("/img", "./static/img")
+	app.HandleDir("/static", "./static")
+	app.HandleDir("/manage/static", "./static")
+	app.HandleDir("/img", "./static/img")
 
 	//注册视图文件
 	app.RegisterView(iris.HTML("./static", ".html"))
