@@ -108,6 +108,33 @@ users.Get("/message/{id:uint64}",userMessageHandler)
 #### .PartyFunc()
 ```cassandraql
 app := iris.New()
+app.PartyFunc("/users", func(users iris.Party) {
+    users.Use(myAuthMiddlewareHandler)
 
+    // http://localhost:8080/users/42/profile
+    users.Get("/{id:uint64}/profile", userProfileHandler)
+    // http://localhost:8080/users/messages/1
+    users.Get("/messages/{id:uint64}", userMessageHandler)
+})
 ```
+
+### Path Parameters 
+> ctx.Params() 获取路由中定义的url路径变量 ?? 与ctx.Values()区别??
+>> path中的路由参数可以从ctx.Params()中取得
+>> 被用于中间件和处理程序交互的 ctx.Values().???
+```cassandraql
+app.Get("/u/{username:string}", func(ctx iris.Context) {
+	ctx.Writef("username (string): %s", ctx.Params().Get("username"))
+})
+```
+
+### 中间件
+#### 例子
+#### 全局中间件
+> 使用ExecutionRules强制使用handle而用写ctx.Next()
+#### 内置中间件
+####  社区中间件
+
+
+
 
