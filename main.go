@@ -1,115 +1,69 @@
 package main
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/kataras/iris/v12"
 )
 
-func main() {
+// In this example you'll just see one use case of .WrapRouter.
+// You can use the .WrapRouter to add custom logic when or when not the router should
+// be executed in order to execute the registered routes' handlers.
+func newApp() *iris.Application {
 	app := iris.New()
 
-	// Catch a specific error code.500
-	app.OnErrorCode(iris.StatusInternalServerError, func(ctx iris.Context) {
-		ctx.HTML("Message: <b>" + ctx.Values().GetString("message") + "</b>")
+	app.OnErrorCode(iris.StatusNotFound, func(ctx iris.Context) {
+		ctx.HTML("<b>Resource Not found</b>")
 	})
 
-	// Catch all error codes [app.OnAnyErrorCode...]
-
-	app.Get("/", func(ctx iris.Context) {
-		ctx.HTML(`Click <a href="/my500">here</a> to pretend an HTTP error`)
+	app.Get("/profile/{username}", func(ctx iris.Context) {
+		ctx.Writef("Hello %s", ctx.Params().Get("username"))
 	})
 
-	app.Get("/my500", func(ctx iris.Context) {
-		ctx.Values().Set("message", "this is the error message")
-		ctx.StatusCode(500)
+	app.HandleDir("/", "./public")
+
+	myOtherHandler := func(ctx iris.Context) {
+		ctx.Writef("inside a handler which is fired manually by our custom router wrapper")
+	}
+
+	// wrap the router with a native net/http handler.
+	// if url does not contain any "." (i.e: .css, .js...)
+	// (depends on the app , you may need to add more file-server exceptions),
+	// then the handler will execute the router that is responsible for the
+	// registered routes (look "/" and "/profile/{username}")
+	// if not then it will serve the files based on the root "/" path.
+	app.WrapRouter(func(w http.ResponseWriter, r *http.Request, router http.HandlerFunc) {
+		path := r.URL.Path
+
+		if strings.HasPrefix(path, "/other") {
+			// acquire and release a context in order to use it to execute
+			// our custom handler
+			// remember: we use net/http.Handler because here we are in the "low-level", before the router itself.
+			ctx := app.ContextPool.Acquire(w, r)
+			myOtherHandler(ctx)
+			app.ContextPool.Release(ctx)
+			return
+		}
+
+		router.ServeHTTP(w, r) // else continue serving routes as usual.
 	})
 
-	app.Get("/u/{firstname:alphabetical}", func(ctx iris.Context) {
-		ctx.Writef("Hello %s", ctx.Params().Get("firstname"))
-	})
+	return app
+}
 
-	app.Get("/product-problem", problemExample)
-
-	app.Get("/product-error", func(ctx iris.Context) {
-		ctx.Writef("explain the error")
-	})
+func main() {
+	app := newApp()
 
 	// http://localhost:8080
-	// http://localhost:8080/my500
-	// http://localhost:8080/u/gerasimos
-	// http://localhost:8080/product-problem
+	// http://localhost:8080/index.html
+	// http://localhost:8080/app.js
+	// http://localhost:8080/css/main.css
+	// http://localhost:8080/profile/anyusername
+	// http://localhost:8080/other/random
 	app.Run(iris.Addr(":8080"))
-}
 
-func newProductProblem(productName, detail string) iris.Problem {
-	return iris.NewProblem().
-		// The type URI, if relative it automatically convert to absolute.
-		Type("/product-error").
-		// The title, if empty then it gets it from the status code.
-		Title("Product validation problem").
-		// Any optional details.
-		Detail(detail).
-		// The status error code, required.
-		Status(iris.StatusBadRequest).
-		// Any custom key-value pair.
-		Key("productName", productName)
-	// Optional cause of the problem, chain of Problems.
-	// Cause(iris.NewProblem().Type("/error").Title("cause of the problem").Status(400))
-}
-
-func problemExample(ctx iris.Context) {
-	/*
-		p := iris.NewProblem().
-			Type("/validation-error").
-			Title("Your request parameters didn't validate").
-			Detail("Optional details about the error.").
-			Status(iris.StatusBadRequest).
-		 	Key("customField1", customValue1)
-		 	Key("customField2", customValue2)
-		ctx.Problem(p)
-
-		// OR
-		ctx.Problem(iris.Problem{
-			"type":   "/validation-error",
-			"title":  "Your request parameters didn't validate",
-			"detail": "Optional details about the error.",
-			"status": iris.StatusBadRequest,
-		 	"customField1": customValue1,
-		 	"customField2": customValue2,
-		})
-
-		// OR
-	*/
-
-	// Response like JSON but with indent of "  " and
-	// content type of "application/problem+json"
-	//ctx.StatusCode(iris.StatusOK)
-	ctx.Problem(newProductProblem("product name", "problem error details"), iris.ProblemOptions{
-		// Optional JSON renderer settings.
-		//JSON: iris.JSON{
-		//	Indent: "  ",
-		//},
-		// OR
-		// Render as XML:
-		RenderXML: true,
-		XML:       iris.XML{Indent: "  "},
-		//
-		// Sets the "Retry-After" response header.
-		//
-		// Can accept:
-		// time.Time for HTTP-Date,
-		// time.Duration, int64, float64, int for seconds
-		// or string for date or duration.
-		// Examples:
-		// time.Now().Add(5 * time.Minute),
-		// 300 * time.Second,
-		// "5m",
-		//
-		RetryAfter: 300,
-		// A function that, if specified, can dynamically set
-		// retry-after based on the request. Useful for ProblemOptions reusability.
-		// Overrides the RetryAfter field.
-		//
-		// RetryAfterFunc: func(iris.Context) interface{} { [...] }
-	})
-
+	// Note: In this example we just saw one use case,
+	// you may want to .WrapRouter or .Downgrade in order to bypass the iris' default router, i.e:
+	// you can use that method to setup custom proxies too.
 }
