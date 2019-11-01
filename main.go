@@ -1,103 +1,154 @@
 package main
 
 import (
-	"sync"
-
 	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/sessions"
+	"github.com/kataras/iris/v12/mvc"
+
+	"github.com/kataras/iris/v12/middleware/logger"
+	"github.com/kataras/iris/v12/middleware/recover"
 )
 
-// Owner is our application structure, it contains the methods or fields we need,
-// think it as the owner of our *Context.
-type Owner struct {
-	// define here the fields that are global
-	// and shared to all clients.
-	sessionsManager *sessions.Sessions
-}
+// This example is equivalent to the
+// https://github.com/kataras/iris/blob/master/_examples/hello-world/main.go
+//
+// It seems that additional code you
+// have to write doesn't worth it
+// but remember that, this example
+// does not make use of iris mvc features like
+// the Model, Persistence or the View engine neither the Session,
+// it's very simple for learning purposes,
+// probably you'll never use such
+// as simple controller anywhere in your app.
+//
+// The cost we have on this example for using MVC
+// on the "/hello" path which serves JSON
+// is ~2MB per 20MB throughput on my personal laptop,
+// it's tolerated for the majority of the applications
+// but you can choose
+// what suits you best with Iris, low-level handlers: performance
+// or high-level controllers: easier to maintain and smaller codebase on large applications.
 
-// this package-level variable "application" will be used inside context to communicate with our global Application.
-var owner = &Owner{
-	sessionsManager: sessions.New(sessions.Config{Cookie: "mysessioncookie"}),
-}
-
-// Context is our custom context.
-// Let's implement a context which will give us access
-// to the client's Session with a trivial `ctx.Session()` call.
-type Context struct {
-	iris.Context
-	session *sessions.Session
-}
-
-// Session returns the current client's session.
-func (ctx *Context) Session() *sessions.Session {
-	// this help us if we call `Session()` multiple times in the same handler
-	if ctx.session == nil {
-		// start a new session if not created before.
-		ctx.session = owner.sessionsManager.Start(ctx.Context)
-	}
-
-	return ctx.session
-}
-
-// Bold will send a bold text to the client.
-func (ctx *Context) Bold(text string) {
-	ctx.HTML("<b>" + text + "</b>")
-}
-
-var contextPool = sync.Pool{New: func() interface{} {
-	return &Context{}
-}}
-
-func acquire(original iris.Context) *Context {
-	ctx := contextPool.Get().(*Context)
-	ctx.Context = original // set the context to the original one in order to have access to iris's implementation.
-	ctx.session = nil      // reset the session
-	return ctx
-}
-
-func release(ctx *Context) {
-	contextPool.Put(ctx)
-}
-
-// Handler will convert our handler of func(*Context) to an iris Handler,
-// in order to be compatible with the HTTP API.
-func Handler(h func(*Context)) iris.Handler {
-	return func(original iris.Context) {
-		ctx := acquire(original)
-		h(ctx)
-		release(ctx)
-	}
-}
-
+// Of course you can put all these to main func, it's just a separate function
+// for the main_test.go.
 func newApp() *iris.Application {
 	app := iris.New()
+	// Optionally, add two builtin handlers
+	// that can recover from any http-relative panics
+	// and log the requests to the terminal.
+	app.Use(recover.New())
+	app.Use(logger.New())
 
-	// Work as you did before, the only difference
-	// is that the original context.Handler should be wrapped with our custom
-	// `Handler` function.
-	app.Get("/", Handler(func(ctx *Context) {
-		ctx.Bold("Hello from our *Context")
-	}))
-
-	app.Post("/set", Handler(func(ctx *Context) {
-		nameFieldValue := ctx.FormValue("name")
-		ctx.Session().Set("name", nameFieldValue)
-		ctx.Writef("set session = " + nameFieldValue)
-	}))
-
-	app.Get("/get", Handler(func(ctx *Context) {
-		name := ctx.Session().GetString("name")
-		ctx.Writef(name)
-	}))
-
+	// Serve a controller based on the root Router, "/".
+	mvc.New(app.Party("/v1/example/")).Handle(new(ExampleController))
 	return app
 }
 
 func main() {
 	app := newApp()
 
-	// GET: http://localhost:8080
-	// POST: http://localhost:8080/set
-	// GET: http://localhost:8080/get
+	// http://localhost:8080
+	// http://localhost:8080/ping
+	// http://localhost:8080/hello
+	// http://localhost:8080/custom_path
 	app.Run(iris.Addr(":8080"))
 }
+
+// ExampleController serves the "/", "/ping" and "/hello".
+type ExampleController struct{}
+
+// Get serves
+// Method:   GET
+// Resource: http://localhost:8080
+func (c *ExampleController) Get() mvc.Result {
+	return mvc.Response{
+		ContentType: "text/html",
+		Text:        "<h1>Welcome</h1>",
+	}
+}
+
+// GetPing serves
+// Method:   GET
+// Resource: http://localhost:8080/ping
+func (c *ExampleController) GetPing() string {
+	return "pong"
+}
+
+// GetHello serves
+// Method:   GET
+// Resource: http://localhost:8080/hello
+func (c *ExampleController) GetHello() interface{} {
+	return map[string]string{"message": "Hello Iris!"}
+}
+
+// BeforeActivation called once, before the controller adapted to the main application
+// and of course before the server ran.
+// After version 9 you can also add custom routes for a specific controller's methods.
+// Here you can register custom method's handlers
+// use the standard router with `ca.Router` to do something that you can do without mvc as well,
+// and add dependencies that will be binded to a controller's fields or method function's input arguments.
+func (c *ExampleController) BeforeActivation(b mvc.BeforeActivation) {
+	anyMiddlewareHere := func(ctx iris.Context) {
+		ctx.Application().Logger().Warnf("Inside /custom_path")
+		ctx.Next()
+	}
+	b.Handle("GET", "/custom_path", "CustomHandlerWithoutFollowingTheNamingGuide", anyMiddlewareHere)
+
+	// or even add a global middleware based on this controller's router,
+	// which in this example is the root "/":
+	// b.Router().Use(myMiddleware)
+}
+
+// CustomHandlerWithoutFollowingTheNamingGuide serves
+// Method:   GET
+// Resource: http://localhost:8080/custom_path
+func (c *ExampleController) CustomHandlerWithoutFollowingTheNamingGuide() string {
+	return "hello from the custom handler without following the naming guide"
+}
+
+// GetUserBy serves
+// Method:   GET
+// Resource: http://localhost:8080/user/{username:string}
+// By is a reserved "keyword" to tell the framework that you're going to
+// bind path parameters in the function's input arguments, and it also
+// helps to have "Get" and "GetBy" in the same controller.
+//
+// func (c *ExampleController) GetUserBy(username string) mvc.Result {
+// 	return mvc.View{
+// 		Name: "user/username.html",
+// 		Data: username,
+// 	}
+// }
+
+/* Can use more than one, the factory will make sure
+that the correct http methods are being registered for each route
+for this controller, uncomment these if you want:
+
+func (c *ExampleController) Post() {}
+func (c *ExampleController) Put() {}
+func (c *ExampleController) Delete() {}
+func (c *ExampleController) Connect() {}
+func (c *ExampleController) Head() {}
+func (c *ExampleController) Patch() {}
+func (c *ExampleController) Options() {}
+func (c *ExampleController) Trace() {}
+*/
+
+/*
+func (c *ExampleController) All() {}
+//        OR
+func (c *ExampleController) Any() {}
+
+
+
+func (c *ExampleController) BeforeActivation(b mvc.BeforeActivation) {
+	// 1 -> the HTTP Method
+	// 2 -> the route's path
+	// 3 -> this controller's method name that should be handler for that route.
+	b.Handle("GET", "/mypath/{param}", "DoIt", optionalMiddlewareHere...)
+}
+
+// After activation, all dependencies are set-ed - so read only access on them
+// but still possible to add custom controller or simple standard handlers.
+func (c *ExampleController) AfterActivation(a mvc.AfterActivation) {}
+
+*/

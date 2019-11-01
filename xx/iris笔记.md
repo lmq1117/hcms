@@ -136,6 +136,14 @@ app.Get("/u/{username:string}", func(ctx iris.Context) {
 ####  社区中间件
 
 ### 错误管理400 500
+>OnErrorCode
+
+>Context.Problem json xml
+
+### 子域名 先跳过2019-11-01
+
+### 
+
 
 
 
