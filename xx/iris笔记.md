@@ -142,7 +142,32 @@ app.Get("/u/{username:string}", func(ctx iris.Context) {
 
 ### 子域名 先跳过2019-11-01
 
-### 
+## mvc
+
+### hello world
+
+#### 常规用法
+```cassandraql
+app := iris.New()
+mvc.New(app).Handle(new(ExampleController))
+app.Run(iris.Addr(":8080"))
+```
+
+#### 默认命名规则及对应path
+> Get：get /
+
+> GetPing:get /ping
+
+> GetUserName:get /user/name
+
+#### 不遵循默认命名规则
+
+```cassandraql
+func (c *ExampleController) BeforeActivation(b mvc.BeforeActivation) {
+	b.Handle("GET", "/custom_path", "CustomHandlerWithoutFollowingTheNamingGuide", anyMiddlewareHere)
+}
+```
+### basic
 
 
 
